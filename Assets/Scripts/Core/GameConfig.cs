@@ -33,6 +33,13 @@ public class GameConfig : ScriptableObject
     [Tooltip("Seconds after a match before the next symbol can spawn")]
     public float nextSymbolSpawnDelay = 0.5f;
 
+    [Header("Layered Symbols")]
+    [Tooltip("Number of gesture layers a layered symbol requires to destroy")]
+    public int layeredSymbolLayers = 3;
+    [Tooltip("0 = never spawn layered, 1 = always spawn layered, 0.3 = 30% chance")]
+    [Range(0f, 1f)]
+    public float layeredSymbolChance = 0.3f;
+
     [Header("Difficulty Progression")]
     [Tooltip("How many seconds between each difficulty step")]
     public float difficultyRampInterval = 20f;

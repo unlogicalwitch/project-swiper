@@ -15,8 +15,9 @@ public class GestureManager : MonoBehaviour
     [Header("Symbols")]
     [SerializeField] private GestureLibrary gestureLibrary;
 
-    [Header("Prefab")]
+    [Header("Prefabs")]
     [SerializeField] private ObjectPool symbolPool;
+    [SerializeField] private ObjectPool layeredSymbolPool;
 
     // ── Events ────────────────────────────────────────────────────────────────
     /// <summary>
@@ -39,6 +40,7 @@ public class GestureManager : MonoBehaviour
         GestureInput.OnGestureRecognized += HandleGestureRecognized;
         FallingSymbol.OnSymbolMissed += HandleSymbolRemoved;
         FallingSymbol.OnSymbolMatched += HandleSymbolRemoved;
+        LayeredFallingSymbol.OnLayerCleared += HandleLayerCleared;
     }
 
     void OnDisable()
@@ -46,6 +48,7 @@ public class GestureManager : MonoBehaviour
         GestureInput.OnGestureRecognized -= HandleGestureRecognized;
         FallingSymbol.OnSymbolMissed -= HandleSymbolRemoved;
         FallingSymbol.OnSymbolMatched -= HandleSymbolRemoved;
+        LayeredFallingSymbol.OnLayerCleared -= HandleLayerCleared;
     }
 
     void Start()
@@ -104,12 +107,19 @@ public class GestureManager : MonoBehaviour
 
             if (activeSymbols.Count < gameConfig.maxConcurrentSymbols)
             {
-                GestureSO gesture = gestureLibrary.GetRandomGesture();
-                if (gesture != null)
+                bool spawnLayered = layeredSymbolPool != null
+                    && UnityEngine.Random.value < gameConfig.layeredSymbolChance;
+
+                if (spawnLayered)
+                    SpawnLayeredSymbolObject(currentFallSpeed);
+                else
                 {
-                    SpawnFallingSymbolObject(gesture, currentFallSpeed);
-                    NotifyActiveSymbolChanged();
+                    GestureSO gesture = gestureLibrary.GetRandomGesture();
+                    if (gesture != null)
+                        SpawnFallingSymbolObject(gesture, currentFallSpeed);
                 }
+
+                NotifyActiveSymbolChanged();
             }
         }
     }
@@ -139,6 +149,23 @@ public class GestureManager : MonoBehaviour
         }
     }
 
+    void SpawnLayeredSymbolObject(float fallSpeed)
+    {
+        if (layeredSymbolPool == null) return;
+
+        GestureSO[] layers = gestureLibrary.GetUniqueRandomGestures(gameConfig.layeredSymbolLayers);
+        if (layers == null || layers.Length == 0) return;
+
+        GameObject fallingObj = layeredSymbolPool.GetObject();
+        LayeredFallingSymbol layered = fallingObj.GetComponent<LayeredFallingSymbol>();
+
+        if (layered != null)
+        {
+            layered.InitializeLayered(layers, gameConfig, fallSpeed);
+            activeSymbols.Add(layered);
+        }
+    }
+
     /// <summary>Fires OnActiveSymbolChanged with the current primary target (index 0), or null.</summary>
     void NotifyActiveSymbolChanged()
     {
@@ -152,6 +179,12 @@ public class GestureManager : MonoBehaviour
     void HandleSymbolRemoved(FallingSymbol symbol)
     {
         activeSymbols.Remove(symbol);
+        NotifyActiveSymbolChanged();
+    }
+
+    void HandleLayerCleared(LayeredFallingSymbol symbol, int remaining)
+    {
+        // Notify HUD hint in case the active symbol's gesture just changed
         NotifyActiveSymbolChanged();
     }
 

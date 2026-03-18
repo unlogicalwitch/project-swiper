@@ -5,7 +5,7 @@ using UnityEngine;
 /// Add new effect components here as the game grows.
 /// No existing classes need to change when adding new effects.
 /// </summary>
-public class EffectsManager : MonoBehaviour
+public class EffectsManager : Singleton<EffectsManager>
 {
     [Header("Camera Effects")]
     [SerializeField] private CameraShake cameraShake;
@@ -44,7 +44,7 @@ public class EffectsManager : MonoBehaviour
     {
         if (matchVFXPrefab != null && symbol != null)
         {
-            // Spawn at the symbol's world position, z=0 to stay in camera view
+            // Spawn match hit VFX 
             Vector3 spawnPos = new Vector3(
                 symbol.transform.position.x,
                 symbol.transform.position.y,
@@ -60,5 +60,10 @@ public class EffectsManager : MonoBehaviour
     {
         if (state == GameState.GameOver)
             cameraShake?.Shake(shakeDuration, shakeMagnitude);
+    }
+
+    public void ShakeCamera()
+    {
+        cameraShake?.Shake(shakeDuration, shakeMagnitude);
     }
 }

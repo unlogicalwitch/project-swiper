@@ -15,6 +15,12 @@ public class HUDManager : MonoBehaviour
     [Header("Target Hint")]
     [SerializeField] private Image targetHintImage;
 
+    [Header("Pause Menu")]
+    [SerializeField] private GameObject pauseMenuPanel;
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button pauseRestartButton;
+    [SerializeField] private Button homeButton;
+
     [Header("Game Over")]
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private TextMeshProUGUI finalScoreText;
@@ -32,20 +38,34 @@ public class HUDManager : MonoBehaviour
     void OnEnable()
     {
         GestureManager.OnActiveSymbolChanged += UpdateTargetHint;
+        GameManager.OnGameStateChanged += HandleGameStateChanged;
     }
 
     void OnDisable()
     {
         GestureManager.OnActiveSymbolChanged -= UpdateTargetHint;
+        GameManager.OnGameStateChanged -= HandleGameStateChanged;
     }
 
     void Start()
     {
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
         if (difficultyUpBanner != null)
             difficultyUpBanner.SetActive(false);
+
+        if (continueButton != null)
+            continueButton.onClick.AddListener(() => gameManager?.ResumeGame());
+
+        if (pauseRestartButton != null)
+            pauseRestartButton.onClick.AddListener(() => gameManager?.RestartGame());
+
+        if (homeButton != null)
+            homeButton.onClick.AddListener(() => gameManager?.RestartGame());
 
         if (restartButton != null)
             restartButton.onClick.AddListener(() => gameManager?.RestartGame());
@@ -74,6 +94,18 @@ public class HUDManager : MonoBehaviour
             scoreText.text = score.ToString();
     }
 
+    public void ShowPauseMenu()
+    {
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(true);
+    }
+
+    public void HidePauseMenu()
+    {
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+    }
+
     public void ShowGameOver(int finalScore)
     {
         if (finalScoreText != null)
@@ -90,6 +122,19 @@ public class HUDManager : MonoBehaviour
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
+
+    void HandleGameStateChanged(GameState state)
+    {
+        switch (state)
+        {
+            case GameState.Paused:
+                ShowPauseMenu();
+                break;
+            case GameState.Playing:
+                HidePauseMenu();
+                break;
+        }
+    }
 
     /// <summary>Updates the target hint image when the active symbol changes.</summary>
     void UpdateTargetHint(GestureSO gesture)

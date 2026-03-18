@@ -54,7 +54,7 @@ public class AudioManager : MonoBehaviour
         if (s != null)
         {
             var originalPitch = s.source.pitch;
-            s.source.pitch = Random.Range(originalPitch - 0.2f, originalPitch + 0.2f);
+            s.source.pitch = Random.Range(originalPitch - 0.1f, originalPitch + 0.1f);
             s.source.Play();
         }
         else

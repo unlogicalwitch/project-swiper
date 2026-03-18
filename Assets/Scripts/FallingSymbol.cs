@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class FallingSymbol : MonoBehaviour
@@ -12,19 +11,19 @@ public class FallingSymbol : MonoBehaviour
     /// <summary>Raised when this symbol is successfully matched by the player.</summary>
     public static event Action<FallingSymbol> OnSymbolMatched;
 
-    // ── Private state ─────────────────────────────────────────────────────────
-    private SpriteRenderer spriteRenderer;
-    private GameConfig gameConfig;
-    private GestureSO gestureData;
-    private float fallSpeed;
-    private bool matched = false;
+    // ── Protected state (accessible to subclasses) ────────────────────────────
+    protected SpriteRenderer spriteRenderer;
+    protected GameConfig gameConfig;
+    protected GestureSO gestureData;
+    protected float fallSpeed;
+    protected bool matched = false;
 
-    void Awake()
+    protected virtual void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Initialize(GestureSO gesture, GameConfig config, float fallSpeed)
+    public virtual void Initialize(GestureSO gesture, GameConfig config, float fallSpeed)
     {
         gestureData = gesture;
         gameConfig = config;
@@ -49,31 +48,33 @@ public class FallingSymbol : MonoBehaviour
     }
 
     /// <summary>Called externally when the player's gesture matches this symbol.</summary>
-    public void HandleMatched()
+    public virtual void HandleMatched()
     {
         if (matched) return;
         matched = true;
 
         Debug.Log($"Symbol matched: {gestureData.gestureID}");
         OnSymbolMatched?.Invoke(this);
-        AudioManager.Instance.PlaySFXRandomPitch("Swipe");
+        AudioManager.Instance?.PlaySFXRandomPitch("Swipe");
+        
 
         StartCoroutine(MatchCoroutine());
     }
 
-    void HandleMissed()
+    protected void HandleMissed()
     {
         matched = true;
         Debug.Log($"Symbol missed: {gestureData?.gestureID}");
         OnSymbolMissed?.Invoke(this);
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     IEnumerator MatchCoroutine()
     {
         yield return new WaitForSeconds(0.1f);
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
-    public GestureSO GetGestureData() => gestureData;
+    /// <summary>Returns the gesture that must be drawn to match this symbol right now.</summary>
+    public virtual GestureSO GetGestureData() => gestureData;
 }
