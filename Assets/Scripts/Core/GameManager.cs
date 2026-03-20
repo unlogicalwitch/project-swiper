@@ -23,6 +23,8 @@ public class GameManager : Singleton<GameManager>
     public int CurrentHP => currentHP;
     public int CurrentScore => currentScore;
     public GameState CurrentState => currentState;
+    public float WorldSpawnY;
+    public float WorldSpawnX;
 
     /// <summary>Convenience — true only while actively playing.</summary>
     public bool IsGameActive => currentState == GameState.Playing;
@@ -31,6 +33,12 @@ public class GameManager : Singleton<GameManager>
     public static event Action<GameState> OnGameStateChanged;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    void Awake()
+    {
+        WorldSpawnY = Camera.main.orthographicSize + gameConfig.spawnYPosition;
+        WorldSpawnX = Camera.main.orthographicSize * Camera.main.aspect + gameConfig.spawnXPosition;
+    }
 
     void OnEnable()
     {
@@ -51,7 +59,7 @@ public class GameManager : Singleton<GameManager>
             Debug.LogError("GameConfig not assigned to GameManager!");
             return;
         }
-
+        Debug.Log("Resolution: " + Screen.width + "x" + Screen.height);
         InitializeGame();
     }
 

@@ -19,22 +19,22 @@ public class GestureManager : MonoBehaviour
     [SerializeField] private ObjectPool symbolPool;
     [SerializeField] private ObjectPool layeredSymbolPool;
 
-    // ── Events ────────────────────────────────────────────────────────────────
-    /// <summary>
-    /// Raised whenever the primary target hint changes.
-    /// Passes the new target GestureSO, or null when no symbols are active.
-    /// </summary>
+    //  Events 
+    // <summary>
+    // Raised whenever the primary target hint changes.
+    // Passes the new target GestureSO, or null when no symbols are active.
+    // </summary>
     public static event Action<GestureSO> OnActiveSymbolChanged;
 
-    // ── Private state ─────────────────────────────────────────────────────────
+    //  Private state 
     private readonly List<FallingSymbol> activeSymbols = new();
     private Coroutine spawnCoroutine;
+    private Coroutine horizontalSpawnCoroutine;
     private float currentSpawnRate;
     private float currentFallSpeed;
     private bool postMatchDelayActive = false;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
-
+    //  Lifecycle 
     void OnEnable()
     {
         GestureInput.OnGestureRecognized += HandleGestureRecognized;
@@ -57,7 +57,7 @@ public class GestureManager : MonoBehaviour
             Debug.LogError("GameConfig not assigned to GestureManager!");
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    //  Public API 
 
     /// <summary>Starts the spawn loop with the given rate and fall speed.</summary>
     public void StartSpawning(float spawnRate, float fallSpeed)
@@ -69,6 +69,8 @@ public class GestureManager : MonoBehaviour
             StopCoroutine(spawnCoroutine);
 
         spawnCoroutine = StartCoroutine(SpawnCoroutine());
+
+        horizontalSpawnCoroutine = StartCoroutine(SpawnHorizontalSymbolCoroutine());
     }
 
     /// <summary>Updates spawn rate and fall speed mid-game (difficulty ramp).</summary>
@@ -84,6 +86,7 @@ public class GestureManager : MonoBehaviour
         if (spawnCoroutine != null)
         {
             StopCoroutine(spawnCoroutine);
+            StopCoroutine(horizontalSpawnCoroutine);
             spawnCoroutine = null;
         }
     }
@@ -91,7 +94,7 @@ public class GestureManager : MonoBehaviour
     /// <summary>Pauses spawning briefly after a successful match.</summary>
     public void TriggerPostMatchDelay()
     {
-        StartCoroutine(PostMatchDelayCoroutine());
+        //StartCoroutine(PostMatchDelayCoroutine());
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -124,13 +127,28 @@ public class GestureManager : MonoBehaviour
         }
     }
 
+    IEnumerator SpawnHorizontalSymbolCoroutine()
+    {
+        while (true)
+        {
+            float cooldown = UnityEngine.Random.Range(
+                gameConfig.horizontalSymbolMinSpawnRate,
+                gameConfig.horizontalSymbolMaxSpawnRate);
+
+            yield return new WaitForSeconds(cooldown);
+
+            SpawnHorizontalSymbolObject(gameConfig.horizontalSymbolSpeed);
+        }
+    }
+
     IEnumerator PostMatchDelayCoroutine()
     {
         postMatchDelayActive = true;
         yield return new WaitForSeconds(gameConfig.nextSymbolSpawnDelay);
         postMatchDelayActive = false;
     }
-
+    
+    // SPAWNING
     void SpawnFallingSymbolObject(GestureSO symbol, float fallSpeed)
     {
         if (symbolPool == null)
@@ -163,6 +181,25 @@ public class GestureManager : MonoBehaviour
         {
             layered.InitializeLayered(layers, gameConfig, fallSpeed);
             activeSymbols.Add(layered);
+        }
+    }
+
+    void SpawnHorizontalSymbolObject(float speed)
+    {
+        if (symbolPool == null)
+        {
+            Debug.LogError("GestureManager: symbol pool not assigned!");
+            return;
+        }
+
+        GameObject fallingObj = symbolPool.GetObject();
+        HorizontalSymbol horizontalSymbol = fallingObj.GetComponent<HorizontalSymbol>();
+
+        if (horizontalSymbol != null)
+        {
+            GestureSO gesture = gestureLibrary.GetRandomGesture();
+            horizontalSymbol.Initialize(gesture, gameConfig, speed);
+            activeSymbols.Add(horizontalSymbol);
         }
     }
 

@@ -4,14 +4,9 @@ using UnityEngine;
 
 public class FallingSymbol : MonoBehaviour
 {
-    // ── Events ────────────────────────────────────────────────────────────────
-    /// <summary>Raised when this symbol reaches the bottom without being matched.</summary>
     public static event Action<FallingSymbol> OnSymbolMissed;
-
-    /// <summary>Raised when this symbol is successfully matched by the player.</summary>
     public static event Action<FallingSymbol> OnSymbolMatched;
 
-    // ── Protected state (accessible to subclasses) ────────────────────────────
     protected SpriteRenderer spriteRenderer;
     protected GameConfig gameConfig;
     protected GestureSO gestureData;
@@ -33,11 +28,12 @@ public class FallingSymbol : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.sprite = gesture.gestureSprite;
 
+        var spawnY = GameManager.Instance.WorldSpawnY;
         float randomX = UnityEngine.Random.Range(-gameConfig.spawnXOffset, gameConfig.spawnXOffset);
-        transform.position = new Vector3(randomX, gameConfig.spawnYPosition, 0f);
+        transform.position = new Vector3(randomX, spawnY, 0f);
     }
 
-    void Update()
+    protected virtual void Update()
     {
         if (matched || gameConfig == null) return;
 
@@ -47,7 +43,7 @@ public class FallingSymbol : MonoBehaviour
             HandleMissed();
     }
 
-    /// <summary>Called externally when the player's gesture matches this symbol.</summary>
+    // Called externally when the player's gesture matches this symbol
     public virtual void HandleMatched()
     {
         if (matched) return;
@@ -56,7 +52,7 @@ public class FallingSymbol : MonoBehaviour
         Debug.Log($"Symbol matched: {gestureData.gestureID}");
         OnSymbolMatched?.Invoke(this);
         AudioManager.Instance?.PlaySFXRandomPitch("Swipe");
-        
+
 
         StartCoroutine(MatchCoroutine());
     }
@@ -75,6 +71,6 @@ public class FallingSymbol : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    /// <summary>Returns the gesture that must be drawn to match this symbol right now.</summary>
+    //Returns the gesture that must be drawn to match this symbol right now
     public virtual GestureSO GetGestureData() => gestureData;
 }

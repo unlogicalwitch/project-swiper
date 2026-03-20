@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c85550f1e31d4183b703bb74cf9da479, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  startingHP: 5
-  symbolSpawnRate: 2
-  maxConcurrentSymbols: 3
+  startingHP: 10
+  symbolSpawnRate: 1.5
+  maxConcurrentSymbols: 5
   symbolFallSpeed: 2
   matchConfidenceThreshold: 0.5
-  spawnYPosition: 6
+  spawnYPosition: 1
+  spawnXPosition: 1
   missYPosition: -5
   spawnXOffset: 2
   matchedSymbolRemovalDelay: 0.3
   nextSymbolSpawnDelay: 0.1
+  layeredSymbolLayers: 3
+  layeredSymbolChance: 0.3
+  horizontalSymbolMinSpawnRate: 8
+  horizontalSymbolMaxSpawnRate: 10
+  horizontalSymbolSpeed: 3
   difficultyRampInterval: 20
   fallSpeedIncreasePerStep: 0.4
   spawnRateDecreasePerStep: 0.25

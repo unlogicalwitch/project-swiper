@@ -20,8 +20,10 @@ public class GameConfig : ScriptableObject
     public float matchConfidenceThreshold = 0.7f;
 
     [Header("Screen Bounds (world units)")]
-    [Tooltip("Y position where symbols spawn (above screen top)")]
-    public float spawnYPosition = 6f;
+    [Tooltip("Y position where symbols spawn (from screen upper edge)")]
+    public float spawnYPosition = 1f;
+    [Tooltip("X position where symbols spawn (from side edges)")]
+    public float spawnXPosition = 1f;
     [Tooltip("Y position where a symbol is considered missed (below screen bottom)")]
     public float missYPosition = -6f;
     [Tooltip("Random X spawn range — camera half-width is ~2.8 at 9:16")]
@@ -39,6 +41,14 @@ public class GameConfig : ScriptableObject
     [Tooltip("0 = never spawn layered, 1 = always spawn layered, 0.3 = 30% chance")]
     [Range(0f, 1f)]
     public float layeredSymbolChance = 0.3f;
+
+    [Header("Horizontal Symbols")]
+    [Tooltip("Minimum cooldown time in seconds between horizontal symbol spawns")]
+    public float horizontalSymbolMinSpawnRate = 8f;
+    [Tooltip("Maximum cooldown time in seconds between horizontal symbol spawns")]
+    public float horizontalSymbolMaxSpawnRate = 10f;
+    public float horizontalSymbolSpeed = 3f;
+    
 
     [Header("Difficulty Progression")]
     [Tooltip("How many seconds between each difficulty step")]
