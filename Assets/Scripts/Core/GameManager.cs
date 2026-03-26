@@ -12,12 +12,17 @@ public class GameManager : Singleton<GameManager>
     // ── Runtime state ─────────────────────────────────────────────────────────
     private int currentHP;
     private int currentScore;
+    private int currentElapsed;
+    private bool isRunning;
     private GameState currentState = GameState.GameOver;
 
     // ── Difficulty state ──────────────────────────────────────────────────────
     private float currentSpawnRate;
     private float currentFallSpeed;
     private Coroutine difficultyCoroutine;
+
+    // ── Boss state ────────────────────────────────────────────────────────────
+    private int lastBossTriggerScore = 0;
 
     // ── Public accessors ──────────────────────────────────────────────────────
     public int CurrentHP => currentHP;
@@ -44,12 +49,14 @@ public class GameManager : Singleton<GameManager>
     {
         FallingSymbol.OnSymbolMissed += HandleSymbolMissed;
         FallingSymbol.OnSymbolMatched += HandleSymbolMatched;
+        BossSequenceManager.OnBossSequenceComplete += HandleBossSequenceComplete;
     }
 
     void OnDisable()
     {
         FallingSymbol.OnSymbolMissed -= HandleSymbolMissed;
         FallingSymbol.OnSymbolMatched -= HandleSymbolMatched;
+        BossSequenceManager.OnBossSequenceComplete -= HandleBossSequenceComplete;
     }
 
     void Start()
@@ -61,6 +68,12 @@ public class GameManager : Singleton<GameManager>
         }
         Debug.Log("Resolution: " + Screen.width + "x" + Screen.height);
         InitializeGame();
+    }
+
+    void Update()
+    {
+        if (!isRunning) return;
+        currentElapsed += (int)Time.deltaTime;
     }
 
     // ── Initialization ────────────────────────────────────────────────────────
@@ -100,10 +113,17 @@ public class GameManager : Singleton<GameManager>
                 StopSpawning();
                 break;
 
+            case GameState.BossFight:
+                StopSpawning();
+                StopDifficultyRamp();
+                BossSequenceManager.Instance?.StartSequence();
+                break;
+
             case GameState.GameOver:
                 Time.timeScale = 0f;
                 StopSpawning();
                 StopDifficultyRamp();
+                BossSequenceManager.Instance?.AbortSequence();
                 Debug.Log($"GAME OVER! Final score: {currentScore}");
                 hudManager?.ShowGameOver(currentScore);
                 break;
@@ -184,6 +204,47 @@ public class GameManager : Singleton<GameManager>
         currentScore++;
         hudManager?.UpdateScore(currentScore);
         symbolManager?.TriggerPostMatchDelay();
+
+        // Check if a boss fight should trigger
+        int interval = gameConfig.bossTriggerScoreInterval;
+        if (interval > 0 && currentScore > 0
+            && currentScore % interval == 0
+            && currentScore != lastBossTriggerScore)
+        {
+            lastBossTriggerScore = currentScore;
+            SetState(GameState.BossFight);
+        }
+    }
+
+    void HandleBossSequenceComplete(bool success)
+    {
+        if (success)
+        {
+            currentHP = Mathf.Min(currentHP + gameConfig.bossSuccessHPReward, gameConfig.startingHP);
+            Debug.Log($"Boss sequence SUCCESS — HP restored to {currentHP}");
+        }
+        else
+        {
+            currentHP -= gameConfig.bossFailHPPenalty;
+            Debug.Log($"Boss sequence FAILED — HP reduced to {currentHP}");
+        }
+
+        hudManager?.UpdateHP(currentHP);
+
+        if (currentHP <= 0)
+        {
+            SetState(GameState.GameOver);
+            return;
+        }
+
+        // Resume normal play after the boss banner has been shown
+        StartCoroutine(ResumeAfterBoss());
+    }
+
+    IEnumerator ResumeAfterBoss()
+    {
+        yield return new WaitForSeconds(gameConfig.bossBannerDuration);
+        SetState(GameState.Playing);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -207,4 +268,8 @@ public class GameManager : Singleton<GameManager>
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    public void StartTimer() => isRunning = true;
+    public void StopTimer()  => isRunning = false;
+    public void ResetTimer() => currentElapsed = 0;
 }

@@ -99,12 +99,12 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
         OnSequenceStarted?.Invoke(sequence);
 
         float elapsed = 0f;
-        float limit = gameConfig.bossTimeLimit;
+        float duration = gameConfig.bossTimeDuration;
 
-        while (elapsed < limit && isRunning)
+        while (elapsed < duration && isRunning)
         {
             elapsed += Time.deltaTime;
-            float normalised = 1f - Mathf.Clamp01(elapsed / limit);
+            float normalised = 1f - Mathf.Clamp01(elapsed / duration);
             OnTimerUpdated?.Invoke(normalised);
             yield return null;
         }

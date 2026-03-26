@@ -50,6 +50,22 @@ public class GameConfig : ScriptableObject
     public float horizontalSymbolSpeed = 3f;
     
 
+    [Header("Boss Fight")]
+    [Tooltip("Score interval at which a boss fight is triggered (e.g. every 10 points)")]
+    public int bossTriggerScoreInterval = 10;
+    [Tooltip("Minimum number of symbols in the boss sequence")]
+    public int bossSequenceLengthMin = 8;
+    [Tooltip("Maximum number of symbols in the boss sequence")]
+    public int bossSequenceLengthMax = 10;
+    [Tooltip("Time in seconds the player has to complete the full sequence")]
+    public float bossTimeDuration = 15f;
+    [Tooltip("HP reward for successfully completing the boss sequence")]
+    public int bossSuccessHPReward = 2;
+    [Tooltip("HP penalty for failing the boss sequence (timeout or wrong gesture)")]
+    public int bossFailHPPenalty = 2;
+    [Tooltip("Seconds to display the intro/result banner before resuming play")]
+    public float bossBannerDuration = 2f;
+
     [Header("Difficulty Progression")]
     [Tooltip("How many seconds between each difficulty step")]
     public float difficultyRampInterval = 20f;
