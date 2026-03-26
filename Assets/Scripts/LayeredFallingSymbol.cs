@@ -25,13 +25,14 @@ public class LayeredFallingSymbol : FallingSymbol
     /// Initializes with a set of randomly picked unique gestures.
     /// The first gesture in the array is shown immediately.
     /// </summary>
-    public void InitializeLayered(GestureSO[] randomLayers, GameConfig config, float fallSpeed)
+    public void InitializeLayered(GestureSO[] randomLayers, GameConfig config, float fallSpeed, ObjectPool objectPool)
     {
         layers = randomLayers;
         currentLayerIndex = 0;
+        this.objectPool = objectPool;
 
         // Initialize base with the first layer's gesture
-        base.Initialize(layers[0], config, fallSpeed);
+        base.Initialize(layers[0], config, fallSpeed, objectPool);
     }
 
     // ── Overrides ─────────────────────────────────────────────────────────────

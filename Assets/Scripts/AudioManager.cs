@@ -55,7 +55,9 @@ public class AudioManager : MonoBehaviour
         {
             var originalPitch = s.source.pitch;
             s.source.pitch = Random.Range(originalPitch - 0.1f, originalPitch + 0.1f);
+            Debug.Log($"Playing sound '{name}' with pitch {s.source.pitch}");
             s.source.Play();
+            s.source.pitch = originalPitch; // Reset pitch after playing
         }
         else
             Debug.LogWarning($"Sound '{name}' not found in AudioManager!");

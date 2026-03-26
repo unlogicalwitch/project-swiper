@@ -2269,7 +2269,7 @@ GameObject:
   - component: {fileID: 1521076609}
   - component: {fileID: 1521076608}
   m_Layer: 0
-  m_Name: SceneLoader
+  m_Name: ScecesManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

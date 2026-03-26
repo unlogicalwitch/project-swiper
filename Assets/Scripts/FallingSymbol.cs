@@ -12,17 +12,19 @@ public class FallingSymbol : MonoBehaviour
     protected GestureSO gestureData;
     protected float fallSpeed;
     protected bool matched = false;
+    protected ObjectPool objectPool;
 
     protected virtual void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public virtual void Initialize(GestureSO gesture, GameConfig config, float fallSpeed)
+    public virtual void Initialize(GestureSO gesture, GameConfig config, float fallSpeed, ObjectPool objectPool)
     {
         gestureData = gesture;
         gameConfig = config;
         this.fallSpeed = fallSpeed;
+        this.objectPool = objectPool;
         matched = false;
 
         if (spriteRenderer != null)
@@ -53,7 +55,6 @@ public class FallingSymbol : MonoBehaviour
         OnSymbolMatched?.Invoke(this);
         AudioManager.Instance?.PlaySFXRandomPitch("Swipe");
 
-
         StartCoroutine(MatchCoroutine());
     }
 
@@ -62,13 +63,13 @@ public class FallingSymbol : MonoBehaviour
         matched = true;
         Debug.Log($"Symbol missed: {gestureData?.gestureID}");
         OnSymbolMissed?.Invoke(this);
-        gameObject.SetActive(false);
+        objectPool.ReturnObject(gameObject);
     }
 
     IEnumerator MatchCoroutine()
     {
         yield return new WaitForSeconds(0.1f);
-        gameObject.SetActive(false);
+        objectPool.ReturnObject(gameObject);
     }
 
     //Returns the gesture that must be drawn to match this symbol right now

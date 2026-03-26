@@ -16,22 +16,24 @@ public class HorizontalSymbol : FallingSymbol
         base.Awake();
     }
 
-    public override void Initialize(GestureSO gesture, GameConfig config, float speed)
+    public override void Initialize(GestureSO gesture, GameConfig config, float speed, ObjectPool objectPool)
     {
         gestureData = gesture;
         gameConfig = config;
         this.speed = speed;
+        this.objectPool = objectPool;
         matched = false;
+
+        // Randomly choose left or right movement direction
+        moveDirection = (Random.value < 0.5f) ? Direction.Left : Direction.Right;
 
         if (spriteRenderer != null)
             spriteRenderer.sprite = gesture.gestureSprite;
 
+        //Calculate spawn position based on device aspect ratio and move direction
         var spawnX = GameManager.Instance.WorldSpawnX;
-        float randomY = UnityEngine.Random.Range(-1, Camera.main.orthographicSize);
-        transform.position = new Vector3(spawnX, randomY, 0f);
-
-        // Randomly choose left or right movement direction
-        moveDirection = (Random.value < 0.5f) ? Direction.Left : Direction.Right;
+        float randomY = UnityEngine.Random.Range(-1, Camera.main.orthographicSize - 1f);
+        transform.position = new Vector3((moveDirection == Direction.Left) ? spawnX : -spawnX,randomY, 0f);
     }
 
     protected override void Update()

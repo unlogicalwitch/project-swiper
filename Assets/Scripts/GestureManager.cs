@@ -162,7 +162,7 @@ public class GestureManager : MonoBehaviour
 
         if (fallingSymbol != null)
         {
-            fallingSymbol.Initialize(symbol, gameConfig, fallSpeed);
+            fallingSymbol.Initialize(symbol, gameConfig, fallSpeed, symbolPool);
             activeSymbols.Add(fallingSymbol);
         }
     }
@@ -179,7 +179,7 @@ public class GestureManager : MonoBehaviour
 
         if (layered != null)
         {
-            layered.InitializeLayered(layers, gameConfig, fallSpeed);
+            layered.InitializeLayered(layers, gameConfig, fallSpeed, layeredSymbolPool);
             activeSymbols.Add(layered);
         }
     }
@@ -198,7 +198,7 @@ public class GestureManager : MonoBehaviour
         if (horizontalSymbol != null)
         {
             GestureSO gesture = gestureLibrary.GetRandomGesture();
-            horizontalSymbol.Initialize(gesture, gameConfig, speed);
+            horizontalSymbol.Initialize(gesture, gameConfig, speed, symbolPool);
             activeSymbols.Add(horizontalSymbol);
         }
     }

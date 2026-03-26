@@ -13,8 +13,8 @@ public class ObjectPool : MonoBehaviour
         for (int i = 0; i < initialSize; i++)
         {
             GameObject obj = Instantiate(prefab, this.transform);
-            obj.SetActive(false);
             pool.Enqueue(obj);
+            obj.SetActive(false);
         }
     }
 
@@ -28,6 +28,7 @@ public class ObjectPool : MonoBehaviour
         }
         else
         {
+            //Create new object if all pooled objects are in use
             GameObject obj = Instantiate(prefab, this.transform);
             return obj;
         }
@@ -35,7 +36,7 @@ public class ObjectPool : MonoBehaviour
 
     public void ReturnObject(GameObject obj)
     {
-        obj.SetActive(false);
         pool.Enqueue(obj);
+        obj.SetActive(false);
     }
 }
