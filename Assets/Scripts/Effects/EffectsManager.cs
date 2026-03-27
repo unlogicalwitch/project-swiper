@@ -1,4 +1,5 @@
 using UnityEngine;
+using CandyCoded.HapticFeedback;
 
 /// <summary>
 /// Central hub that maps game events to visual effects.
@@ -53,7 +54,7 @@ public class EffectsManager : Singleton<EffectsManager>
             Instantiate(matchVFXPrefab, spawnPos, Quaternion.identity);
         }
 
-        cameraShake?.Shake(shakeDuration, shakeMagnitude);
+        ShakeCamera();
     }
 
     void HandleGameStateChanged(GameState state)
@@ -65,5 +66,6 @@ public class EffectsManager : Singleton<EffectsManager>
     public void ShakeCamera()
     {
         cameraShake?.Shake(shakeDuration, shakeMagnitude);
+        HapticFeedback.HeavyFeedback();
     }
 }

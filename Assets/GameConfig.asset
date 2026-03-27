@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c85550f1e31d4183b703bb74cf9da479, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  startingHP: 10
+  startingHP: 999
   symbolSpawnRate: 1.5
   maxConcurrentSymbols: 5
   symbolFallSpeed: 2
@@ -25,9 +25,16 @@ MonoBehaviour:
   nextSymbolSpawnDelay: 0.1
   layeredSymbolLayers: 3
   layeredSymbolChance: 0.3
-  horizontalSymbolMinSpawnRate: 8
-  horizontalSymbolMaxSpawnRate: 10
+  horizontalSymbolMinSpawnRate: 3
+  horizontalSymbolMaxSpawnRate: 4
   horizontalSymbolSpeed: 3
+  bossTriggerScoreInterval: 10
+  bossSequenceLengthMin: 10
+  bossSequenceLengthMax: 10
+  bossTimeDuration: 15
+  bossSuccessHPReward: 1
+  bossFailHPPenalty: 1
+  bossBannerDuration: 2
   difficultyRampInterval: 20
   fallSpeedIncreasePerStep: 0.4
   spawnRateDecreasePerStep: 0.25

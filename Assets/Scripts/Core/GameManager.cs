@@ -32,7 +32,7 @@ public class GameManager : Singleton<GameManager>
     public float WorldSpawnX;
 
     /// <summary>Convenience — true only while actively playing.</summary>
-    public bool IsGameActive => currentState == GameState.Playing;
+    public bool IsGameActive => currentState == GameState.Playing || currentState == GameState.BossFight;
 
     /// <summary>Raised whenever the game state changes.</summary>
     public static event Action<GameState> OnGameStateChanged;
@@ -61,6 +61,7 @@ public class GameManager : Singleton<GameManager>
 
     void Start()
     {
+        Application.targetFrameRate = 60;
         if (gameConfig == null)
         {
             Debug.LogError("GameConfig not assigned to GameManager!");

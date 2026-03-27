@@ -1,38 +1,32 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Manages a single boss-fight sequence:
-///   1. Generates a random ordered list of gestures.
-///   2. Displays them in the HUD (via events).
-///   3. Runs a countdown timer.
+///   1. Generates a random ordered list of gestures and fires OnSequenceStarted.
+///   2. Waits for BossSequenceDisplay to call NotifyEnterComplete() (after the enter animation).
+///   3. Fires OnTimerStarted, then runs the countdown.
 ///   4. Validates each player gesture in order.
 ///   5. Fires OnBossSequenceComplete(success) when done.
-///
-/// Attach to any persistent GameObject (e.g. GameManager).
-/// Call StartSequence() to begin; the manager cleans itself up on finish.
 /// </summary>
 public class BossSequenceManager : Singleton<BossSequenceManager>
 {
     // ── Events ────────────────────────────────────────────────────────────────
 
-    /// <summary>Fired when the sequence is fully set up and the timer starts.</summary>
+    /// <summary>Fired immediately when the sequence array is ready (before the timer starts).</summary>
     public static event Action<GestureSO[]> OnSequenceStarted;
 
-    /// <summary>
-    /// Fired each time the player correctly matches the current symbol.
-    /// int = index of the symbol just matched (0-based).
-    /// </summary>
+    /// <summary>Fired after the enter animation completes — this is when the timer begins.</summary>
+    public static event Action<GestureSO[]> OnTimerStarted;
+
+    /// <summary>Fired each time the player correctly matches the current symbol. int = matched index.</summary>
     public static event Action<int> OnSymbolMatched;
 
-    /// <summary>
-    /// Fired when the player draws the wrong gesture.
-    /// </summary>
+    /// <summary>Fired when the player draws the wrong gesture.</summary>
     public static event Action OnWrongGesture;
 
-    /// <summary>Fired every frame while the sequence is running. float = 0..1 (1 = full time remaining).</summary>
+    /// <summary>Fired every frame while the timer is running. float = 0..1 (1 = full time remaining).</summary>
     public static event Action<float> OnTimerUpdated;
 
     /// <summary>Fired when the sequence ends. bool = true if the player won.</summary>
@@ -49,6 +43,7 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
     private GestureSO[] sequence;
     private int currentIndex;
     private bool isRunning;
+    private bool enterComplete;
     private Coroutine sequenceCoroutine;
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -56,8 +51,9 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
     public bool IsRunning => isRunning;
 
     /// <summary>
-    /// Begins a new boss sequence. Length is randomly chosen between
-    /// gameConfig.bossSequenceLengthMin and bossSequenceLengthMax (inclusive).
+    /// Begins a new boss sequence. Fires OnSequenceStarted immediately so the
+    /// display can start the enter animation. The timer does NOT start until
+    /// NotifyEnterComplete() is called.
     /// </summary>
     public void StartSequence()
     {
@@ -71,18 +67,28 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
             gameConfig.bossSequenceLengthMin,
             gameConfig.bossSequenceLengthMax + 1);
 
-        // Build sequence — allow repeats so length is never capped by library size
         GestureSO[] allGestures = gestureLibrary.GetAllGestures();
         sequence = new GestureSO[length];
         for (int i = 0; i < length; i++)
-            sequence[i] = allGestures[UnityEngine.Random.Range(0, allGestures.Length)];
+            sequence[i] = gestureLibrary.GetRandomGesture();
 
         currentIndex = 0;
         isRunning = true;
+        enterComplete = false;
 
-        GestureInput.OnGestureRecognized += HandleGestureRecognized;
+        // Notify display immediately so it can store the sequence for the animation
+        OnSequenceStarted?.Invoke(sequence);
 
         sequenceCoroutine = StartCoroutine(RunSequence());
+    }
+
+    /// <summary>
+    /// Called by BossSequenceDisplay once the enter animation finishes.
+    /// This unblocks the timer and allows gesture input.
+    /// </summary>
+    public void NotifyEnterComplete()
+    {
+        enterComplete = true;
     }
 
     /// <summary>Force-aborts the sequence (e.g. on game over).</summary>
@@ -96,7 +102,12 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
 
     IEnumerator RunSequence()
     {
-        OnSequenceStarted?.Invoke(sequence);
+        // Wait until the enter animation signals it's done
+        yield return new WaitUntil(() => enterComplete);
+
+        // Now the timer starts — notify display to activate the first slot
+        OnTimerStarted?.Invoke(sequence);
+        GestureInput.OnGestureRecognized += HandleGestureRecognized;
 
         float elapsed = 0f;
         float duration = gameConfig.bossTimeDuration;
@@ -122,22 +133,17 @@ public class BossSequenceManager : Singleton<BossSequenceManager>
 
         if (expected.gestureID.Equals(gestureName, StringComparison.OrdinalIgnoreCase))
         {
-            // Correct gesture
             AudioManager.Instance?.PlaySFXRandomPitch("Swipe");
             OnSymbolMatched?.Invoke(currentIndex);
             currentIndex++;
 
             if (currentIndex >= sequence.Length)
-            {
-                // All symbols matched — success!
                 StopSequenceInternal(success: true, fireEvent: true);
-            }
         }
         else
         {
-            // Wrong gesture
             OnWrongGesture?.Invoke();
-            Debug.Log($"BossSequence: wrong gesture '{gestureName}', expected '{expected.gestureID}'");
+            //Debug.Log($"BossSequence: wrong gesture '{gestureName}', expected '{expected.gestureID}'");
         }
     }
 
