@@ -15,7 +15,7 @@ MonoBehaviour:
   startingHP: 999
   symbolSpawnRate: 1.5
   maxConcurrentSymbols: 5
-  symbolFallSpeed: 2
+  symbolFallSpeed: 1.75
   matchConfidenceThreshold: 0.5
   spawnYPosition: 1
   spawnXPosition: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
   layeredSymbolChance: 0.3
   horizontalSymbolMinSpawnRate: 3
   horizontalSymbolMaxSpawnRate: 4
-  horizontalSymbolSpeed: 3
+  horizontalSymbolSpeed: 2.5
   bossTriggerScoreInterval: 10
   bossSequenceLengthMin: 10
   bossSequenceLengthMax: 10

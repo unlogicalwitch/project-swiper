@@ -7,12 +7,12 @@ public class ScenesManager : Singleton<ScenesManager>
 {
     public void LoadScene(string sceneName)
     {
-        StartCoroutine(LoadSceneCoroutine(sceneName));
+        SceneManager.LoadScene(sceneName);
     }
 
     public void ReloadScene()
     {
-        StartCoroutine(LoadSceneCoroutine(SceneManager.GetActiveScene().name));
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     IEnumerator LoadSceneCoroutine(string sceneName)

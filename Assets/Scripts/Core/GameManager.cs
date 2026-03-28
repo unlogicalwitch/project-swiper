@@ -39,10 +39,15 @@ public class GameManager : Singleton<GameManager>
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    void Awake()
+    protected override void Awake()
     {
-        WorldSpawnY = Camera.main.orthographicSize + gameConfig.spawnYPosition;
-        WorldSpawnX = Camera.main.orthographicSize * Camera.main.aspect + gameConfig.spawnXPosition;
+        base.Awake();
+        
+        if (Camera.main != null)
+        {
+            WorldSpawnY = Camera.main.orthographicSize + gameConfig.spawnYPosition;
+            WorldSpawnX = Camera.main.orthographicSize * Camera.main.aspect + gameConfig.spawnXPosition;
+        }
     }
 
     void OnEnable()
@@ -267,7 +272,7 @@ public class GameManager : Singleton<GameManager>
     public void RestartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        ScenesManager.Instance.ReloadScene();
     }
 
     public void StartTimer() => isRunning = true;

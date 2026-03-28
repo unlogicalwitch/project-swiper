@@ -57,18 +57,6 @@ public class HUDManager : MonoBehaviour
 
         if (difficultyUpBanner != null)
             difficultyUpBanner.SetActive(false);
-
-        if (continueButton != null)
-            continueButton.onClick.AddListener(() => gameManager?.ResumeGame());
-
-        if (pauseRestartButton != null)
-            pauseRestartButton.onClick.AddListener(() => gameManager?.RestartGame());
-
-        if (homeButton != null)
-            homeButton.onClick.AddListener(() => gameManager?.RestartGame());
-
-        if (restartButton != null)
-            restartButton.onClick.AddListener(() => gameManager?.RestartGame());
     }
 
     // ── Public API ────────────────────────────────────────────────────────────

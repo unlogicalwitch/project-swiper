@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24b5b2357b3f84c4eb78a730f9c86323, type: 3}
+  m_Name: GestureTemplate_5
+  m_EditorClassIdentifier: 
+  gestureID: 05
+  gestureSprite: {fileID: 21300000, guid: bdf0161bc28aba34791dcbe7cefcc081, type: 3}
+  points:
+  - {x: 0, y: 1}
+  - {x: -1, y: 0}
+  - {x: 1, y: 0}
+  - {x: 0, y: -1}

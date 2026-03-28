@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
-using Microsoft.VisualBasic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -43,9 +38,13 @@ public class AudioManager : MonoBehaviour
     {
         Sound s = System.Array.Find(sounds, sound => sound.name == name);
         if (s != null)
+        {
             s.source.Play();
+        }
         else
+        {
             Debug.LogWarning($"Sound '{name}' not found in AudioManager!");
+        }
     }
 
     public void PlaySFXRandomPitch(string name)
@@ -70,5 +69,25 @@ public class AudioManager : MonoBehaviour
             s.source.Stop();
         else
             Debug.LogWarning($"Sound '{name}' not found in AudioManager!");
+    }
+
+    /// <summary>Apply SFX volume (0-1) to all non-looping sounds.</summary>
+    public void SetSFXVolume(float volume)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (!s.loop)
+                s.source.volume = s.volume * volume;
+        }
+    }
+
+    /// <summary>Apply music volume (0-1) to all looping sounds.</summary>
+    public void SetMusicVolume(float volume)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.loop)
+                s.source.volume = s.volume * volume;
+        }
     }
 }
