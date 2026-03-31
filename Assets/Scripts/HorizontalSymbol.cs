@@ -23,6 +23,14 @@ public class HorizontalSymbol : FallingSymbol
         this.speed = speed;
         this.objectPool = objectPool;
         matched = false;
+        
+        if (boilingAnimator != null)
+        {
+            Debug.Log("set frames");
+            boilingAnimator.SetFrames(gesture.boilingFrames);
+        }
+        else if (spriteRenderer != null)
+            spriteRenderer.sprite = gesture.gestureSprite;
 
         // Randomly choose left or right movement direction
         moveDirection = (Random.value < 0.5f) ? Direction.Left : Direction.Right;

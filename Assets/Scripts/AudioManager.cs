@@ -3,9 +3,6 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
-    //[Header("Sources")]
-    //private AudioSource bgmSource;
-    //private AudioSource sfxSource;
 
     [Header("Sound Library")]
     [SerializeField] private Sound[] sounds;
@@ -27,6 +24,11 @@ public class AudioManager : MonoBehaviour
                 s.source.loop = s.loop;
                 s.source.playOnAwake = s.playOnAwake;
             }
+
+            // Apply saved volume settings immediately after sources are ready.
+            // SettingsManager persists across scenes so it may already exist.
+            if (SettingsManager.Instance != null)
+                SettingsManager.Instance.ApplyAll();
         }
         else
         {
@@ -38,13 +40,9 @@ public class AudioManager : MonoBehaviour
     {
         Sound s = System.Array.Find(sounds, sound => sound.name == name);
         if (s != null)
-        {
             s.source.Play();
-        }
         else
-        {
             Debug.LogWarning($"Sound '{name}' not found in AudioManager!");
-        }
     }
 
     public void PlaySFXRandomPitch(string name)
@@ -54,9 +52,8 @@ public class AudioManager : MonoBehaviour
         {
             var originalPitch = s.source.pitch;
             s.source.pitch = Random.Range(originalPitch - 0.1f, originalPitch + 0.1f);
-            Debug.Log($"Playing sound '{name}' with pitch {s.source.pitch}");
             s.source.Play();
-            s.source.pitch = originalPitch; // Reset pitch after playing
+            s.source.pitch = originalPitch;
         }
         else
             Debug.LogWarning($"Sound '{name}' not found in AudioManager!");

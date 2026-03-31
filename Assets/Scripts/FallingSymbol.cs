@@ -8,6 +8,7 @@ public class FallingSymbol : MonoBehaviour
     public static event Action<FallingSymbol> OnSymbolMatched;
 
     protected SpriteRenderer spriteRenderer;
+    protected BoilingAnimator boilingAnimator;
     protected GameConfig gameConfig;
     protected GestureSO gestureData;
     protected float fallSpeed;
@@ -17,6 +18,7 @@ public class FallingSymbol : MonoBehaviour
     protected virtual void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        boilingAnimator = GetComponent<BoilingAnimator>();
     }
 
     public virtual void Initialize(GestureSO gesture, GameConfig config, float fallSpeed, ObjectPool objectPool)
@@ -27,7 +29,12 @@ public class FallingSymbol : MonoBehaviour
         this.objectPool = objectPool;
         matched = false;
 
-        if (spriteRenderer != null)
+        if (boilingAnimator != null)
+        {
+            Debug.Log("set frames");
+            boilingAnimator.SetFrames(gesture.boilingFrames);
+        }
+        else if (spriteRenderer != null)
             spriteRenderer.sprite = gesture.gestureSprite;
 
         var spawnY = GameManager.Instance.WorldSpawnY;
@@ -61,6 +68,7 @@ public class FallingSymbol : MonoBehaviour
     protected void HandleMissed()
     {
         matched = true;
+        boilingAnimator?.Stop();
         Debug.Log($"Symbol missed: {gestureData?.gestureID}");
         OnSymbolMissed?.Invoke(this);
         objectPool.ReturnObject(gameObject);
@@ -68,6 +76,7 @@ public class FallingSymbol : MonoBehaviour
 
     IEnumerator MatchCoroutine()
     {
+        boilingAnimator?.Stop();
         yield return new WaitForSeconds(0.1f);
         objectPool.ReturnObject(gameObject);
     }

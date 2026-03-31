@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gestureID: 04
   gestureSprite: {fileID: 21300000, guid: c8ff7cd4a1d28dd4eb6bec980de9d190, type: 3}
+  boilingFrames:
+  - {fileID: 21300000, guid: 86bb6d26d277ddb41bae93e633db1c07, type: 3}
+  - {fileID: 21300000, guid: 01a71e90991a2014eb47318a0e1da159, type: 3}
   points:
   - {x: -1, y: 1}
   - {x: 1, y: 1}

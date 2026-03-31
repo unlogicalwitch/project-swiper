@@ -66,6 +66,9 @@ public class EffectsManager : Singleton<EffectsManager>
     public void ShakeCamera()
     {
         cameraShake?.Shake(shakeDuration, shakeMagnitude);
-        HapticFeedback.HeavyFeedback();
+        if (SettingsManager.Instance.Vibration)
+        {
+            HapticFeedback.HeavyFeedback();
+        }
     }
 }

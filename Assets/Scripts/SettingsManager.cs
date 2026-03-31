@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Owns all player-facing settings (SFX volume, music volume, vibration).
@@ -39,32 +40,35 @@ public class SettingsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         LoadFromPlayerPrefs();
-        ApplyAll();
+        // ApplyAll is deferred to Start so AudioManager has time to Awake first
     }
 
     private void Start()
     {
+        ApplyAll();
         Debug.Log($"Settings loaded: SFX={SFXVolume}, Music={MusicVolume}, Vibration={Vibration}");
     }
 
     // ── Public setters (called by SettingsUI) ─────────────────────────────────
 
     /// <summary>Change SFX volume (0–1), save to PlayerPrefs, apply to AudioManager.</summary>
-    public void SetSFXVolume(float value)
+    public void SetSFXVolume(float volume)
     {
-        SFXVolume = Mathf.Clamp01(value);
+        SFXVolume = Mathf.Clamp01(volume);
         PlayerPrefs.SetFloat(KEY_SFX, SFXVolume);
         PlayerPrefs.Save();
         AudioManager.Instance?.SetSFXVolume(SFXVolume);
+        Debug.Log($"SFX volume set to {SFXVolume}");
     }
 
     /// <summary>Change music volume (0–1), save to PlayerPrefs, apply to AudioManager.</summary>
-    public void SetMusicVolume(float value)
+    public void SetMusicVolume(float volume)
     {
-        MusicVolume = Mathf.Clamp01(value);
+        MusicVolume = Mathf.Clamp01(volume);
         PlayerPrefs.SetFloat(KEY_MUSIC, MusicVolume);
         PlayerPrefs.Save();
         AudioManager.Instance?.SetMusicVolume(MusicVolume);
+        Debug.Log($"Music volume set to {MusicVolume}");
     }
 
     /// <summary>Toggle vibration on/off, save to PlayerPrefs.</summary>
@@ -85,6 +89,16 @@ public class SettingsManager : MonoBehaviour
             Handheld.Vibrate();
     }
 
+    /// <summary>
+    /// Called by AudioManager after it finishes initialising its AudioSources,
+    /// so that saved volume settings are applied immediately on scene load.
+    /// </summary>
+    public void ApplyAll()
+    {
+        AudioManager.Instance?.SetSFXVolume(SFXVolume);
+        AudioManager.Instance?.SetMusicVolume(MusicVolume);
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /// <summary>Read saved values from PlayerPrefs (falls back to defaults on first run).</summary>
@@ -93,14 +107,5 @@ public class SettingsManager : MonoBehaviour
         SFXVolume   = PlayerPrefs.GetFloat(KEY_SFX,   DEFAULT_SFX);
         MusicVolume = PlayerPrefs.GetFloat(KEY_MUSIC, DEFAULT_MUSIC);
         Vibration   = PlayerPrefs.GetInt(KEY_VIBRATE, DEFAULT_VIB ? 1 : 0) == 1;
-    }
-
-    /// <summary>Push all current values to the relevant systems.</summary>
-    private void ApplyAll()
-    {
-        // AudioManager uses DontDestroyOnLoad too, so it may already exist.
-        // If it doesn't exist yet it will pull these values itself in its Awake.
-        AudioManager.Instance?.SetSFXVolume(SFXVolume);
-        AudioManager.Instance?.SetMusicVolume(MusicVolume);
     }
 }
