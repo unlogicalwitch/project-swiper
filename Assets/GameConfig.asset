@@ -28,7 +28,7 @@ MonoBehaviour:
   horizontalSymbolMinSpawnRate: 3
   horizontalSymbolMaxSpawnRate: 4
   horizontalSymbolSpeed: 2.5
-  bossTriggerScoreInterval: 20
+  bossTriggerScoreInterval: 10
   bossSequenceLengthMin: 10
   bossSequenceLengthMax: 10
   bossTimeDuration: 15

@@ -26,7 +26,6 @@ public class HorizontalSymbol : FallingSymbol
         
         if (boilingAnimator != null)
         {
-            Debug.Log("set frames");
             boilingAnimator.SetFrames(gesture.boilingFrames);
         }
         else if (spriteRenderer != null)

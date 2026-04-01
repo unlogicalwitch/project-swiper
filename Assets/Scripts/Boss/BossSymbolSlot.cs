@@ -8,6 +8,7 @@ using UnityEngine;
 public class BossSymbolSlot : MonoBehaviour
 {
     public enum SlotState { Hidden, Pending, Active, Matched }
+    private BoilingAnimator boilingAnimator;
 
     [Header("Renderers")]
     [SerializeField] private SpriteRenderer iconRenderer;
@@ -21,6 +22,7 @@ public class BossSymbolSlot : MonoBehaviour
     private void Awake()
     {
         iconRenderer = GetComponent<SpriteRenderer>();
+        boilingAnimator = GetComponent<BoilingAnimator>();    
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -28,7 +30,9 @@ public class BossSymbolSlot : MonoBehaviour
     public void SetGesture(GestureSO gesture)
     {
         if (iconRenderer != null)
-            iconRenderer.sprite =  gesture.gestureSprite;
+        {
+            boilingAnimator?.SetFrames(gesture.boilingFrames);
+        }
     }
 
     public void SetState(SlotState state)
@@ -50,8 +54,7 @@ public class BossSymbolSlot : MonoBehaviour
                 break;
 
             case SlotState.Matched:
-                gameObject.SetActive(true);
-                ApplyColor(matchedColor);
+                gameObject.SetActive(false);
                 break;
         }
     }

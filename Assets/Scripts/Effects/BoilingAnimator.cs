@@ -10,10 +10,10 @@ using UnityEngine;
 public class BoilingAnimator : MonoBehaviour
 {
     [Tooltip("How many frames per second to cycle through the boiling frames.")]
-    [SerializeField] private float fps = 8f;
+    [SerializeField] private float fps;
 
     private Sprite[] frames;
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    private SpriteRenderer spriteRenderer;
     private bool isPlaying;
 
     private void Awake()
@@ -46,7 +46,6 @@ public class BoilingAnimator : MonoBehaviour
 
         // All instances read the same Time.time → all symbols stay in sync
         int index = Mathf.FloorToInt(Time.time * fps) % frames.Length;
-        Debug.Log(index);
         spriteRenderer.sprite = frames[index];
     }
 }
